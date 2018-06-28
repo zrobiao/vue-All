@@ -1,0 +1,222 @@
+<template>
+  <div class="Sharing">
+    <v-header></v-header>
+    <div class="box">
+      <p class="qrcode"><img :src="QrCodeURL"></p>
+      <div class="kk-logo">
+        <img src="../../assets/kk-logo.png" />
+      </div>
+      <p class="qrcode-txt">扫码分享</p>
+    </div>
+    <button class="btn" v-on:click="sharingFriend()">点击分享</button>
+
+  </div>
+
+</template>
+<script>
+import vHeader from './../common/Header.vue'
+import { Cell } from 'mint-ui'
+import util from './../../js/util/util.js'
+import wxapi from './../../js/util/wxapi.js'
+let QRCode = require('qrcode')
+export default {
+  data() {
+    return {
+     
+      items: [
+        {
+          title: '电话',
+          info: '1840163111'
+        },
+        {
+          title: '姓名',
+          info: '阿作'
+        },
+        {
+          title: '性别',
+          info: '男'
+        },
+        {
+          title: '出生日期',
+          info: '1991-01-12'
+        }
+      ],
+      QrCodeURL: '',
+      QrCodeData: '',
+      popupVisible: true
+    }
+  },
+  created() {
+    this.$store.state.headings = this.$router.history.current.name //修改标题
+    this.$store.state.isFooterShow = false //显示底部导航
+    //this.GetUserSharedSalt()
+  },
+  components: {
+    vHeader,
+    Cell
+  },
+  mounted: function() {
+    //加载完成后执行
+    let $this = this
+    wxapi.wxRegister() //微信分享【】
+    //根据点击顺序1.分享护工 2.分享用户
+    if (this.$route.query.sharingId == 1) {
+      //分享护工
+      util.Ajax(
+        '/api/user/' + window.user.user_id + '/worker?_method=GET',
+        {},
+        function(data) {
+          //console.log(data)
+          if (data) {
+            let userData = data.data
+            if (userData.status == 'success') {
+              $this.QrCodeData = userData.result
+              $this.createUserQrCode($this.QrCodeData) //生成二维码
+            }
+          }
+        }
+      )
+    } else if (this.$route.query.sharingId == 2) {
+      //分享用户
+      util.Ajax(
+        '/api/user/' + window.user.user_id + '/customer?_method=GET',
+        {},
+        function(data) {
+          //console.log(data)
+          if (data) {
+            let userData = data.data
+            if (userData.status == 'success') {
+              $this.QrCodeData = userData.result
+              $this.createUserQrCode($this.QrCodeData) //生成二维码
+            }
+          }
+        }
+      )
+    }
+  },
+  methods: {
+    createUserQrCode: function(salt) {
+      //salt 加载密钥
+      //参考官网 https://www.npmjs.com/package/qrcode#qr-code-options
+      var _$this = this
+      var _QrCodeOptions = {
+        errorCorrectionLevel: 'H',
+        version: 9
+      }
+      QRCode.toDataURL(salt, _QrCodeOptions, function(error, url) {
+        if (!error) _$this.QrCodeURL = url
+      })
+    },
+    GetUserSharedSalt: function() {
+      //从服务器中获取当前护工分享关键Salt
+      //ToDo .....
+      //生成二维码
+      var salt = 'xcvbndfghjk,你好世界'
+      this.createUserQrCode(salt)
+    },
+    wxRegCallback() {
+      alert("huidiao")
+      this.wxShareTimeline()
+    },
+    wxShareTimeline() {
+      alert("wxShareTimeline")
+      let opstion = {
+        title: '分享测试', // 分享标题
+        link: 'http://www.baidu.com', // 分享链接
+        imgUrl:
+          'http://www.jzdlink.com/wordpress/wp-content/themes/wordpress_thems/images/lib/logo.png', // 分享图标
+        success: function() {
+          alert('分享成功')
+        },
+        error: function() {
+          alert('分享失败')
+        }
+      }
+      wxapi.ShareTimeline(opstion)
+    },
+    sharingFriend(){
+      console.log("分享至朋友圈")//
+      this.wxShareTimeline() //微信分享【】
+    }
+  }
+}
+</script>
+<style>
+.head-portrait {
+  position: relative;
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  padding: 3rem 1rem;
+  background: #fff;
+  font-size: 16px;
+}
+
+.portrait {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  float: right;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.Sharing {
+  background: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  padding-top: 4rem;
+}
+
+.Sharing .btn {
+  position: fixed;
+  left: 50%;
+  bottom: 5rem;
+  background: #fff;
+  height: 3rem;
+  line-height: 3rem;
+  border: 1px solid #eee;
+  background: #94ca52;
+  color: #fff;
+  border-radius: 5px;
+  width: 10rem;
+  margin-left: -5rem;
+  display: block;
+  font-size: 1.2rem;
+}
+
+.Sharing .box {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.4rem;
+  position: relative;
+}
+
+.Sharing .box .qrcode {
+  margin: 5rem auto 1rem;
+}
+
+.Sharing .box .qrcode-txt {
+  margin: 40px auto 1rem;
+}
+
+.Sharing .kk-logo {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  left: 50%;
+  top: 40%;
+  margin: -15px 0 0 -15px;
+}
+.Sharing .kk-logo img {
+  height: 100%;
+  width: 100%;
+}
+</style>
