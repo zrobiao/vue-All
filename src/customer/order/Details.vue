@@ -42,7 +42,7 @@
       </div>
     </div>
     <div v-if="repeatExchange" style="color: red;padding-left: 2rem;font-size: 1.2rem;">注:护工已经拒单,您可以选择更换护工或取消订单</div>
-    <div class="tiem" v-if="isShow">订单剩余支付时间:&nbsp;
+    <div class="tiem" v-if="isShow&&isLine">订单剩余支付时间:&nbsp;
       <span>{{minutes}}分钟&nbsp;{{seconds}}秒</span>
     </div>
     <div class="appraise" v-if="showAppraise">
@@ -66,7 +66,7 @@
     <mt-button type="primary" class="mt-button" v-if="isExchanging">更换护工中</mt-button>
     <mt-button type="default" class="mt-button" v-if="isTermination" v-on:click="OrderToTerminate">订单终止</mt-button>
     <mt-button type="default" class="mt-button" v-if="isAppraise" v-on:click="OrderAppraise">订单评价</mt-button>
-    <mt-button type="default" class="mt-button" v-if="overTime&&!isCancellation" v-on:click="goBackOrder('/customer/workers')">重新下单</mt-button>
+    <mt-button type="default" class="mt-button" v-if="overTime&&isOrderAgain" v-on:click="goBackOrder('/customer/workers')">重新下单</mt-button>
     <div class="cancellation-button" v-if="isTocomplete">服务-已完成</div>
     <div class="cancellation-button" v-if="isCancellation">取消-已完成</div>
     <div class="cancellation-button" v-if="isPayation">支付-已完成</div>
@@ -276,7 +276,7 @@ import {
   CustInfoServiceTypeStatusDict
 } from "./../../js/util/constants.js";
 import wechatPay from "./../../assets/js/wechat_pay";
-import { Cell, Toast, MessageBox ,Radio} from "mint-ui";
+import { Cell, Toast, MessageBox, Radio } from "mint-ui";
 import modal from "./../common/modal";
 import axios from "axios";
 //验证微信用户登录
@@ -288,7 +288,9 @@ export default {
       StartTiem: "",
       value: "",
       Type: "",
+      isLine:true,  //判断是否线上下单还是扫码下单
       isSatrt: false,
+      isOrderAgain:true,  //是否重新下单
       isCancel: false,
       isShow: false,
       isExchange: false,
@@ -320,18 +322,18 @@ export default {
       playclick: false,
       OverInterval: false,
       overTime: false,
-      coupons:[
+      coupons: [
         {
-          label:'满300减50卷',
-          value:'值A',
+          label: "满300减50卷",
+          value: "值A"
         },
         {
-          label:'首用减100卷',
-          value:'值B',
+          label: "首用减100卷",
+          value: "值B"
         },
         {
-          label:'满400减80卷',
-          value:'值C',
+          label: "满400减80卷",
+          value: "值C"
         }
       ]
     };
@@ -451,13 +453,15 @@ export default {
         title: "好陪护提示",
         confirmButtonText: "确定",
         cancelButtonText: "取消"
-      }).then(x => {
+      })
+        .then(x => {
           console.log(x);
           if (x === "confirm") {
             //执行终结订单
             _orderExecute();
           }
-        }).catch(error => {
+        })
+        .catch(error => {
           //取消结束
         });
     },
@@ -609,33 +613,41 @@ export default {
             //界面组件控制
             if (orderInfo.orderWork) {
               var orderWork = orderInfo.orderWork;
+              var orderType = orderInfo.orderType; //获取当前订单为线上还是线下
               var custInfoStatus = orderWork.status;
-              this.PanelButtonVaild(orderInfo.status, custInfoStatus);
+              this.PanelButtonVaild(
+                orderType,
+                orderInfo.status,
+                custInfoStatus
+              );
             } else {
-              this.PanelButtonVaild(orderInfo.status);
+              this.PanelButtonVaild(orderType, orderInfo.status);
             }
             //订单是否开始倒计时
-            $this.interval = setInterval(() => {
-              if ($this.differMs > 0 && $this.playclick == true) {
-                // this.TimeOverShow(orderCreatedAt);
-                clearInterval($this.interval);
-                $this.interval = null;
-                $this.orderInterval = setTimeout(() => {
-                  console.log($this.OverInterval);
-                  if (!$this.OverInterval) {
-                    $this.getOrder();
-                  } else {
-                    $this.orderInterval = null;
-                  }
-                }, 5000);
-              } else if ($this.differMs > 0 && $this.playclick == false) {
-                $this.TimeOverShow(orderCreatedAt);
-              } else {
-                //十分钟时间到停止刷新！
-                clearInterval($this.interval);
-                $this.interval = null;
-              }
-            }, 1000);
+            if (orderInfo.orderType === 'online') {
+              console.log("现在是线上下单，开始倒计时");
+              $this.interval = setInterval(() => {
+                if ($this.differMs > 0 && $this.playclick == true) {
+                  // this.TimeOverShow(orderCreatedAt);
+                  clearInterval($this.interval);
+                  $this.interval = null;
+                  $this.orderInterval = setTimeout(() => {
+                    console.log($this.OverInterval);
+                    if (!$this.OverInterval) {
+                      $this.getOrder();
+                    } else {
+                      $this.orderInterval = null;
+                    }
+                  }, 5000);
+                } else if ($this.differMs > 0 && $this.playclick == false) {
+                  $this.TimeOverShow(orderCreatedAt);
+                } else {
+                  //十分钟时间到停止刷新！
+                  clearInterval($this.interval);
+                  $this.interval = null;
+                }
+              }, 1000);
+            }
             //评价业务控制
             if (orderInfo.ratingStatus === 1) {
               //订单已评价
@@ -714,12 +726,19 @@ export default {
       this.isAppraise = false;
       this.showView = false;
     },
-    PanelButtonVaild: function(orderState, custInfoStatus) {
+    PanelButtonVaild: function(orderType, orderState, custInfoStatus) {
       //custInfoStatus orderWorks 表中护工与客户订单关系状态
       var Type = orderState;
       switch (Type) {
         case CustomerOrderState.Unpaid: //未付款
-          this.isShow = true;
+          if (orderType === "online") {
+            console.log("现在是线上下单");
+            this.isLine = true;
+          } else {
+            console.log("现在是线下下单");
+            this.isLine = false;
+          }
+            this.isShow = true;
           this.isCancel = true;
           if (
             custInfoStatus &&
@@ -734,6 +753,7 @@ export default {
           this.isSatrt = true;
           this.isCancel = true;
           this.isPayation = true;
+          this.isOrderAgain = false;
           this.closeTnterval();
           if (
             custInfoStatus &&
@@ -749,6 +769,7 @@ export default {
           this.isPayation = true;
           this.isCancel = true;
           this.isServiceFlag = true;
+          this.isOrderAgain = false;
           this.closeTnterval();
           break;
         case CustomerOrderState.Progressing: //正常进行中
@@ -757,25 +778,30 @@ export default {
           this.isExchanging = false;
           this.isCancel = false;
           this.isTermination = true;
+          this.isOrderAgain = false;
           this.closeTnterval();
           break;
         case CustomerOrderState.Completed: //正常已完成
           this.isShow = false;
           this.isTocomplete = true;
+          this.isOrderAgain = false;
           this.closeTnterval();
           break;
         case CustomerOrderState.Refunding: //退款进行中
           this.isShow = false;
           this.isRefundFlag = true;
+          this.isOrderAgain = false;
           this.closeTnterval();
           break;
         case CustomerOrderState.Refunded: //退款
           this.isShow = false;
+          this.isOrderAgain = false;
           this.closeTnterval();
         case CustomerOrderState.Cancelled: //已取消
           this.isShow = false;
           this.isCancel = false;
           this.isCancellation = true;
+          this.isOrderAgain = false;
           this.closeTnterval();
           break;
         case CustomerOrderState.SubstitutePending: //更换护工中
@@ -784,6 +810,7 @@ export default {
           this.isExchanging = true;
           this.isCancel = false;
           this.isTermination = true;
+          this.isOrderAgain = false;
           break;
         default:
           break;
@@ -812,7 +839,6 @@ export default {
       clearInterval(this.interval);
       this.interval = null;
       this.OverInterval = true;
-      console.log("关闭所有循环！");
     }
   }
 };

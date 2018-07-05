@@ -2,7 +2,7 @@
   <div class="workersDetails">
     <v-header></v-header>
     <!-- <p v-if='items==""'>当前没有符合要求的护工</p> -->
-    <div class="no-data" v-if='items==""'>
+    <div class="no-data" v-if='items.length==0'>
       <i class="iconfont">&#xe649;</i>当前没有符合要求的护工
     </div>
     <loadmore :top-method="loadTop" @translate-change="translateChange" @top-status-change="handleTopChange" :bottom-method="loadBottom" :auto-fill="false" :bottom-all-loaded="allLoaded" ref="loadmore">
@@ -20,8 +20,9 @@
         </div>
       </div>
     </loadmore>
-    <div class="datatotal-box">
-      <p><span>{{currentNumb}}</span>/{{dataNumb}}
+    <div class="datatotal-box" v-if='items.length!=0'>
+      <p>
+        <span>{{currentNumb}}</span>/{{dataNumb}}
       </p>
     </div>
     <mt-popup v-model="popupVisible1" popup-transition="popup-fade" class="mint-popup-1">
@@ -264,7 +265,9 @@ export default {
                   var newOrderWorks = orderWorksData.filter(value => {
                     return value.workId === workId;
                   });
-                  if (newOrderWorks[newOrderWorks.length - 1].status === "idle") {
+                  if (
+                    newOrderWorks[newOrderWorks.length - 1].status === "idle"
+                  ) {
                     console.log("更换成功,等待护工确定");
                     $this.goOrderDetails(backData.order_id, backData.status);
                   } else {
@@ -274,7 +277,7 @@ export default {
               }
             }
           });
-        }        
+        }
       }
     },
     goOrderDetails: function(orderId, status) {
@@ -324,7 +327,6 @@ export default {
       util.Ajax("/api/work/availableWorks?_method=POST", _params, function(
         data
       ) {
-        console.log(data);
         var listData = data.data;
         var data = listData.data;
         $this.dataNumb = listData.totalCount;
@@ -332,17 +334,19 @@ export default {
         if ($this.currentNumb >= listData.totalCount) {
           $this.allLoaded = true; // 若数据已全部获取完毕
           $this.$refs.loadmore.onBottomLoaded();
-          $this.currentNumb = listData.totalCount
+          $this.currentNumb = listData.totalCount;
           Toast({
             message: "已加载全部护工！",
             duration: 2000
           });
         } else {
-          for (var i in data) {
-            let newUrl = $this.WorkerIconChange(data[i].avatar);
-            data[i].avatar = newUrl;
-            $this.items.push(data[i]);
-          }
+          $this.allLoaded = false; // 若数据已全部获取完毕
+          $this.$refs.loadmore.onBottomLoaded();
+        }
+        for (var i in data) {
+          let newUrl = $this.WorkerIconChange(data[i].avatar);
+          data[i].avatar = newUrl;
+          $this.items.push(data[i]);
         }
       });
     }
@@ -525,6 +529,6 @@ export default {
 }
 .datatotal-box p span {
   font-size: 1.6rem;
-  padding:0 3px;
+  padding: 0 3px;
 }
 </style>

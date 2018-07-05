@@ -45,16 +45,16 @@ const store = new Vuex.Store({
 		isFooterShow: false,
 		flag: 3,
 		//27（92）
-		userId: 27,
+		userId: 67,
 		workId: 92,
 		//		customer_appid: isTest ? 'wx9e64c093244fb42b' : 'wx059ae8af2befce8d', //微信ID
 		//		worker_appid: isTest ? 'wxc623feee9451eb31' : 'wx8d52e52502d04610',
 		//imgUrl:'http://192.168.0.56:8139/'     //图片地址
 		imgUrl: 'https://' + document.location.host + '/images/uploadsWorkAvatar/',
-		// consultUrl: 'https://www.kkpeihu.com' + '/images/uploadsSystem/SysOpera/', //咨询标题图
-		// alternateUrl: 'https://www.kkpeihu.com' + '/images/uploadsSystem/SysAdvert/', //轮播图路径
-		consultUrl: 'https://' + document.location.host + '/images/uploadsSystem/SysOpera/', //咨询标题图
-		alternateUrl: 'https://' + document.location.host + '/images/uploadsSystem/SysAdvert/', //轮播图路径
+		consultUrl: 'https://www.kkpeihu.com' + '/images/uploadsSystem/SysOpera/', //咨询标题图
+		alternateUrl: 'https://www.kkpeihu.com' + '/images/uploadsSystem/SysAdvert/', //轮播图路径
+		// consultUrl: 'https://' + document.location.host + '/images/uploadsSystem/SysOpera/', //咨询标题图
+		// alternateUrl: 'https://' + document.location.host + '/images/uploadsSystem/SysAdvert/', //轮播图路径
 	},
 	mutations: {
 		token(state) {
@@ -106,19 +106,19 @@ const store = new Vuex.Store({
 /**
  * 获取用户
  */
-axios.get('/api/user/me', {
-	headers: {
-		'Content-Type': 'application/json'
-	}
-}).then(function (resp) {
-	if (resp) {
-		if (resp.status == 200) {
-			window.user = resp.data;
-			store.state.userId = resp.data.user_id;
-		}
-	// show();
-	}
-})
+// axios.get('/api/user/me', {
+// 	headers: {
+// 		'Content-Type': 'application/json'
+// 	}
+// }).then(function (resp) {
+// 	if (resp) {
+// 		if (resp.status == 200) {
+// 			window.user = resp.data;
+// 			store.state.userId = resp.data.user_id;
+// 		}
+// 	// show();
+// 	}
+// })
 
 
 //微信端发布开启-------end---------

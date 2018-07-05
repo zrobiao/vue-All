@@ -331,6 +331,10 @@ export default new Router({
 			path: '/worker/appeal',
 			name: '投诉处理',
 			component: resolve => require(['@/worker/workers/appeal'], resolve)
+		},{
+			path: '/worker/test',
+			name: '护工端测试页',
+			component: resolve => require(['@/worker/user/test'], resolve)
 		},
 		{
 			path: "*",
@@ -353,7 +357,8 @@ export default new Router({
 			component: resolve => require(['@/supervisor/order/details'], resolve)
 		},],
 	}, {
-		path: "/website",
+		path: "/",
+		redirect: '/website/index',
 		component: Index,
 		children: [{
 			path: '/website/index',

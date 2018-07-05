@@ -1,16 +1,19 @@
 <template>
   <div>
+    <Header></Header>
     <section>
-      <carousel :indicators="indicators" :controls="controls" :interval="interval" ref="carousel">
-        <slide v-for="(slide, index) in slides" :key="index">
-          <div style="width: 100%;" class="slider-box">
-            <!-- <img :src="slide.advPicURL"> -->
-            <img :src="slide.src">
+      <carousel :indicators="indicators" :controls="controls" :interval="interval" ref="carousel" v-if="isData">
+        <slide v-for="(slide, index) in advertImg" :key="index">
+          <!-- <slide v-for="(slide, index) in slides" :key="index"> -->
+          <div style="width: 100%;" class="slider-box" :style="{height:verifyBrowser?'500px':mbBnaner+'px'}">
+            <img :src="slide.advPicURL">
+            <!-- <img :src="slide.src" style="height:100%;"> -->
           </div>
         </slide>
         <template slot="indicators" slot-scope="props">
           <ol class="carousel-indicators custom-carousel-indicators">
-            <li v-for="(slide, index) in slides" :class="{active:index === props.activeIndex}" @click="props.select(index)">
+            <li v-for="(slide, index) in advertImg" :class="{active:index === props.activeIndex}" @click="props.select(index)">
+              <!-- <li v-for="(slide, index) in slides" :class="{active:index === props.activeIndex}" @click="props.select(index)"> -->
               <!-- Anything you like here -->
             </li>
           </ol>
@@ -23,7 +26,7 @@
         <p></p>
       </div>
       <ul class="content row">
-        <li class="col-lg-3 col-md-3 col-xs-12">
+        <li class="col-lg-3 col-md-3 col-xs-6">
           <div class="index-libox">
             <div class="icon-box">
               <i class="iconfont hph-ali-icon1"></i>
@@ -31,7 +34,7 @@
             <p>专业服务<br/>培训上岗&nbsp;&nbsp;经验丰富</p>
           </div>
         </li>
-        <li class="col-lg-3 col-md-3 col-xs-12">
+        <li class="col-lg-3 col-md-3 col-xs-6">
           <div class="index-libox">
             <div class="icon-box">
               <i class="iconfont hph-ali-resource"></i>
@@ -39,7 +42,7 @@
             <p>六大资源<br/>全面服务&nbsp;&nbsp;为您护航</p>
           </div>
         </li>
-        <li class="col-lg-3 col-md-3 col-xs-12">
+        <li class="col-lg-3 col-md-3 col-xs-6">
           <div class="index-libox">
             <div class="icon-box">
               <i class="iconfont hph-ali-zyfw"></i>
@@ -47,7 +50,7 @@
             <p>五星陪护<br/>海量护工&nbsp;&nbsp;五星服务</p>
           </div>
         </li>
-        <li class="col-lg-3 col-md-3 col-xs-12">
+        <li class="col-lg-3 col-md-3 col-xs-6">
           <div class="index-libox">
             <div class="icon-box">
               <i class="iconfont hph-ali-anquan"></i>
@@ -63,7 +66,7 @@
     <section class="container">
       <ul class="content row">
         <li class="col-lg-6 col-md-6 col-xs-12">
-          <div class="nurs-wokerbox nurs-zybg" ref="bignurs" :style="{height:bigHeight+'px'}">
+          <div class="nurs-wokerbox nurs-zybg" ref="bignurs" :style="{height:verifyBrowser?bigHeight+'px':smallHeight+'px'}">
             <div class="nurs-ziy">
               <h6>直营护工</h6>
               <p>更专业、更舒心</p>
@@ -92,7 +95,7 @@
         <p></p>
       </div>
       <div class="container">
-        <ul class="content row">
+        <ul class="content row enter-box">
           <li class="col-lg-4 col-md-4 col-xs-12">
             <div class="ent-libox">
               <div class="icon-box app-icon">
@@ -112,7 +115,7 @@
             </div>
           </li>
           <li class="col-lg-4 col-md-4 col-xs-12">
-            <div class="ent-libox">
+            <div class="ent-libox" style="border:none">
               <div class="icon-box phone-icon">
                 <i class="iconfont hph-ali-dianhuadiaoyan"></i>
               </div>
@@ -128,20 +131,26 @@
 <script>
 import router from "./../router";
 import util from "./../js/util/util.js";
+import Header from "./common/header.vue";
+// import {Carousel,Slide} from 'uiv'
+
 export default {
   name: "app",
   components: {
     // Footer,
-    // Header
+    Header
+    // Carousel,
+    // Slide
   },
   data() {
     return {
       msg: "这里是首页！",
-      interval: 0,
+      interval: 5000,
       indicators: true,
       controls: false,
       bigHeight: 0,
       smallHeight: 0,
+      mbBnaner: 300,
       middleHeight: 0,
       slides: [
         {
@@ -150,7 +159,8 @@ export default {
         }
       ],
       advertImg: [],
-      verifyBrowser:true,
+      verifyBrowser: true,
+      isData: false
     };
   },
   methods: {
@@ -174,62 +184,67 @@ export default {
         bIsCE ||
         bIsWM
       ) {
-        console.log("移动端设备");
-        this.verifyBrowser=false
+        this.verifyBrowser = false;
       } else {
-        this.verifyBrowser=true
-        console.log("pc端设备");
+        this.verifyBrowser = true;
       }
     },
     getUserAdvertList: function() {
       let _this = this;
-      console.log(_this.$store.state.alternateUrl)
+      console.log(_this.$store.state.alternateUrl);
       if (_this.verifyBrowser) {
-        console.log("pc端设备");
         util.Ajax("/api/sysAdvert/userHouseListPC?_method=GET", {}, function(
           data
         ) {
           let advertData = data.data;
           let advertItem = advertData.data;
-          console.log(advertItem);
+          _this.isData = true;
           for (var i in advertItem) {
-              // let ImgUrl = _this.WorkerIconChange(advertItem[i].advPicURL);
-            advertItem[i].advPicURL = _this.$store.state.alternateUrl+advertItem[i].advPicURL;
+            // let ImgUrl = _this.WorkerIconChange(advertItem[i].advPicURL);
+            advertItem[i].advPicURL =
+              _this.$store.state.alternateUrl + advertItem[i].advPicURL;
             _this.advertImg.push(advertItem[i]);
           }
         });
-      }else{
-        console.log("移动端设备");
+      } else {
         util.Ajax("/api/sysAdvert/userHouseListH5?_method=GET", {}, function(
-            data
-          ) {
-            let advertData = data.data;
-            let advertItem = advertData.data;
-            console.log(advertItem);
-            for (var i in advertItem) {
-              // let ImgUrl = _this.WorkerIconChange(advertItem[i].advPicURL);
-              advertItem[i].advPicURL = _this.$store.state.alternateUrl+advertItem[i].advPicURL;
-              _this.advertImg.push(advertItem[i]);
-            }
-          });
+          data
+        ) {
+          console.log(data);
+
+          let advertData = data.data;
+          let advertItem = advertData.data;
+          _this.isData = true;
+          for (var i in advertItem) {
+            // let ImgUrl = _this.WorkerIconChange(advertItem[i].advPicURL);
+            advertItem[i].advPicURL =
+              _this.$store.state.alternateUrl + advertItem[i].advPicURL;
+            _this.advertImg.push(advertItem[i]);
+          }
+        });
       }
     }
   },
   created() {
     this.$store.state.flag = 0;
     document.title = "好陪护";
-    document.body.scrollTop = 0
-    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
     this.browserRedirect();
     this.getUserAdvertList();
   },
   mounted() {
+    let screenWidth =
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth;
     let nursWidth = this.$refs.bignurs.offsetWidth;
     let smNursWidth = this.$refs.smallnurs.offsetWidth;
     // let indexMiddleWidth = this.$refs.indexMiddle.offsetWidth;
     // this.middleHeight = indexMiddleWidth / 10;
     this.bigHeight = nursWidth / 1.25;
     this.smallHeight = smNursWidth / 2.6;
+    this.mbBnaner = screenWidth / 1.8;
   }
 };
 </script>
@@ -246,6 +261,7 @@ export default {
 .slider-box img {
   height: 100%;
   width: auto;
+  max-width: auto;
 }
 .custom-carousel-indicators li {
   margin: 0 8px;
@@ -311,7 +327,7 @@ export default {
 .icon-box {
   color: #34b8de;
   text-align: center;
-  padding: 12px 0;
+  padding: 0;
 }
 .icon-box i {
   font-size: 6rem;
@@ -377,6 +393,10 @@ export default {
   color: #525252;
   margin: 0;
 }
+.ent-libox{
+  border-right:1px solid #fff;
+  border-bottom: none;
+}
 .app-icon {
   color: #34b8de;
 }
@@ -399,6 +419,9 @@ export default {
   .slider-box {
     height: 300px;
   }
+  .slider-box img {
+    max-width: 100%;
+  }
   /* 中间banner */
   .index-middle {
     height: 100px;
@@ -407,6 +430,27 @@ export default {
     font-size: 1.6rem;
     color: #fff;
     line-height: 100px;
+  }
+  .icon-box i {
+    font-size: 5rem;
+  }
+  .content li {
+    margin-bottom: 20px;
+    padding: 0 5px;
+  }
+  .enter-box li {
+    padding: 0 30px;
+  }
+  .ent-libox{
+    border-bottom:1px solid #fff;
+    border-right: none;
+  }
+  .index-libox p {
+    text-align: center;
+    color: #525252;
+    line-height: 2rem;
+    font-size: 1.6rem;
+    padding: 8px 0 15px;
   }
 }
 </style>

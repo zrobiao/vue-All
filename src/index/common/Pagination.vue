@@ -25,10 +25,10 @@ export default {
       default: 1
     },
     // 用于记录当前页数，这个与父组件进行数据交互来完成每一页的数据更新，所以我们只要改变current的值来控制整个页面的数据即可
-    current: {
-      type: Number,
-      default: 1
-    }
+    // current: {
+    //   type: Number,
+    //   default: 1
+    // }
   },
   data: function () {
     return {
@@ -36,6 +36,7 @@ export default {
       backClipped: true,
       preClipped: false,
       bigWidth:true,
+      current:1
     }
   },
   created() {
@@ -50,13 +51,11 @@ export default {
       // 上一页
       // this.current -= 1
       this.$emit('addCurrent',this.current -= 1)
-      console.log(this.current)
     },
     nextPage () {
       // 下一页
       // this.current += 1
       this.$emit('addCurrent',this.current += 1)
-      console.log(this.current)
     },
     goPage (index) {
       // 跳转到相应页面

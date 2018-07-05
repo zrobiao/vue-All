@@ -30,40 +30,56 @@
     </div>
     <div class="footer-bottom">
       <div class="container">
-        <p>Copyright&nbsp;@&nbsp;2016-2018&nbsp;www.kkpeihu.com.All&nbsp;Rights&nbsp;Reserved&nbsp;&nbsp;&nbsp;粤ICP备16046624号-1</p>
+        <p>Copyright&nbsp;@&nbsp;2016-2018&nbsp;<a :href="'https://'+webAddr">{{webAddr}}</a>.All&nbsp;Rights&nbsp;Reserved&nbsp;&nbsp;&nbsp;粤ICP备16046624号-1</p>
       </div>
     </div>
   </footer>
 </template>
 <script>
 // import "../../css/bootstrap/css/bootstrap.min.css"
-import Amap from './map.vue'
+import Amap from "./map.vue";
 export default {
   data() {
     return {
-      footerLtH: 0
+      footerLtH: 0,
+      clienthW: document.body.clientWidth,
+      webAddr:window.location.host
     };
   },
   methods: {
-    showLstHeight:function (){
-      let leftHeight = this.$refs.leftBox.offsetHeight
-      this.footerLtH = leftHeight
+    showLstHeight: function() {
+      let leftHeight = this.$refs.leftBox.offsetHeight;
+      this.footerLtH = leftHeight;
     }
   },
   created() {
-    let documentwidth = window.innerWidth
-    if(documentwidth<760){
-      this.footerLtH=200
-    }else{
+    let documentwidth = window.innerWidth;
+    // this.clienthW = documentwidth
+    if (documentwidth < 760) {
+      this.footerLtH = 120;
+    } else {
       setTimeout(() => {
-        this.showLstHeight()
-      }, 500)
-    }
-    },
-  mounted() {
+        this.showLstHeight();
+      }, 500);
+    } 
   },
-  beforeUpdate() {
-
+  mounted() {
+    let _this = this;
+    window.onresize = () => {
+      return (() => {
+        window.screenWidth = document.body.clientWidth;
+        _this.clienthW = window.screenWidth;
+      })();
+    };
+  },
+  watch: {
+    clienthW(val) {
+      if (val < 760) {
+        this.footerLtH = 200;
+      } else {
+        this.showLstHeight();
+      }
+    }
   },
   components: {
     Amap
@@ -75,65 +91,65 @@ footer {
   background: #3b4a55;
   color: #fff;
 }
-.compinfo h2{
-  font-size:2.6rem;
-  margin:0;
-  padding:20px 0 10px;
+.compinfo h2 {
+  font-size: 2.6rem;
+  margin: 0;
+  padding: 20px 0 10px;
 }
-.compinfo p{
-  margin:0;
-  padding-bottom:6px;
+.compinfo p {
+  margin: 0;
+  padding-bottom: 6px;
 }
-.qrcodebox{
-  padding:5px 0;
+.qrcodebox {
+  padding: 5px 0;
 }
-.qrcodebox p{
-  padding-bottom:6px;
-  margin-bottom:0;
+.qrcodebox p {
+  padding-bottom: 6px;
+  margin-bottom: 0;
 }
-.qrcodebox ul{
-  padding:0;
-  margin-bottom:0;
+.qrcodebox ul {
+  padding: 0;
+  margin-bottom: 0;
 }
 /* .qrcodebox li{
   padding:0 30px;
 } */
-.qrcodebox li img{
-  width:100%;
-  height:auto;
+.qrcodebox li img {
+  width: 100%;
+  height: auto;
 }
-.qrcodebox li p{
-  text-align:center;
+.qrcodebox li p {
+  text-align: center;
   padding: 8px 0;
-  margin:0;
+  margin: 0;
 }
-.footer-bottom{
-  background: #263643
+.footer-bottom {
+  background: #263643;
 }
-.footer-bottom p{
+.footer-bottom p {
   text-align: center;
   line-height: 1.4rem;
-  padding:8px 0;
+  padding: 8px 0;
   font-size: 1.2rem;
-  margin:0;
+  margin: 0;
 }
 /* 移动端样式调节 */
 @media screen and (max-width: 420px) {
-.compinfo h2{
-  font-size:2rem;
-  margin:0;
-  padding:10px 0;
-}
-.compinfo p{
-  font-size: 1.4rem;
-  margin:0;
-  padding-bottom:6px;
-}
-.footer-bottom{
-  background: #263643
-}
-.footer-bottom p{
-  line-height: 1.2rem;
-}
+  .compinfo h2 {
+    font-size: 2rem;
+    margin: 0;
+    padding: 10px 0;
+  }
+  .compinfo p {
+    font-size: 1.4rem;
+    margin: 0;
+    padding-bottom: 6px;
+  }
+  .footer-bottom {
+    background: #263643;
+  }
+  .footer-bottom p {
+    line-height: 1.2rem;
+  }
 }
 </style>

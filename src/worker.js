@@ -14,24 +14,25 @@ import 'mint-ui/lib/style.css'
 import Vuex from 'vuex';
 import config from './config'
 import LoginVerify from './assets/js/login_verify'
-
+import clipper from '../static/clipper'
 import { Toast, Indicator } from 'mint-ui';
 
 Vue.config.productionTip = false
 Vue.use(MintUI)
 Vue.use(Vuex);
+Vue.use(clipper);
 
 //var isTest = true;
 // //微信端发布开启-------start----------------
-let vue;
-//设置图片路径
-//if(isTest){
-//	imgUrlValue = 'https://test.kkpeihu.cn/images/uploadsWorkAvatar/';
-//}else{
-//	imgUrlValue = 'https://sjht.kkpeihu.cn/images/uploadsWorkAvatar/';
-//}
-//加载等待
-Indicator.open({text: '加载中...',spinnerType: 'fading-circle'});
+// let vue;
+// //设置图片路径
+// //if(isTest){
+// //	imgUrlValue = 'https://test.kkpeihu.cn/images/uploadsWorkAvatar/';
+// //}else{
+// //	imgUrlValue = 'https://sjht.kkpeihu.cn/images/uploadsWorkAvatar/';
+// //}
+// //加载等待
+// Indicator.open({text: '加载中...',spinnerType: 'fading-circle'});
 
 //微信端发布开启-------end--------------
 // 如果在模块化构建系统中，请确保在开头调用了 Vue.use(Vuex)
@@ -43,8 +44,8 @@ const store = new Vuex.Store({
 		isFooterShow: false,
 		flag: 3,
 		//27（92）
-		userId: 45,
-		workId: 1,
+		userId: 63,
+		workId: 81,
 //		customer_appid: isTest ? 'wx9e64c093244fb42b' : 'wx059ae8af2befce8d', //微信ID
 //		worker_appid: isTest ? 'wxc623feee9451eb31' : 'wx8d52e52502d04610',
 		//imgUrl:'http://192.168.0.56:8139/'     //图片地址
@@ -60,107 +61,107 @@ const store = new Vuex.Store({
 })
 
 /* eslint-disable no-new 非微信端开发开启*/
-// new Vue({
-// el: '#app',
-// store,
-// router,
-// template: '<App/>',
-// components: { App }
-// })
+new Vue({
+el: '#app',
+store,
+router,
+template: '<App/>',
+components: { App }
+})
 
 //微信端发布开启------start---------
-function show() {
-	Indicator.close();
-	vue = new Vue({
-		el: '#app', // 挂载点，挂载在id为app的组件上  
-		template: '<App/>',
-		router, //把声明的router对象作为参数传给vue对象  
-		store,
-		components: {
-			App
-		} // 组册组件，这里是一个es6的缩写方法，相当于components:{App:App}  
-	});
-	vue.$mount('#app'); // 把vue挂载到dom上  
-}
+// function show() {
+// 	Indicator.close();
+// 	vue = new Vue({
+// 		el: '#app', // 挂载点，挂载在id为app的组件上  
+// 		template: '<App/>',
+// 		router, //把声明的router对象作为参数传给vue对象  
+// 		store,
+// 		components: {
+// 			App
+// 		} // 组册组件，这里是一个es6的缩写方法，相当于components:{App:App}  
+// 	});
+// 	vue.$mount('#app'); // 把vue挂载到dom上  
+// }
 
-//微信检测登录
-if(!LoginVerify.init(config.worker_appid, 'worker', function() {
-	    show()
-	    console.log("进回调函数")
-		if(!window.user || !window.user.phoneNum) {
-			//router.push("/worker/registration"); //
-			router.replace({
-		      name: '护工注册'
-		    })
-		}
-//		console.log("LoginVerify")
-//		console.log(window.user)
-//		console.log(!window.user)
-	})) {
-	show()
-	console.log("登录");
-}
+// // //微信检测登录
+// if(!LoginVerify.init(config.worker_appid, 'worker', function() {
+// 	    show()
+// 	    console.log("进回调函数")
+// 		if(!window.user || !window.user.phoneNum) {
+// 			//router.push("/worker/registration"); //
+// 			router.replace({
+// 		      name: '护工注册'
+// 		    })
+// 		}
+// //		console.log("LoginVerify")
+// //		console.log(window.user)
+// //		console.log(!window.user)
+// 	})) {
+// 	show()
+// 	console.log("登录");
+// }
 
-/**
-   * 获取用户
-   */
-function getUser(callback) {
-	axios.get('/api/user/me', {
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	}).then(function(resp) {
-//		console.log(resp);
-//		console.log("getUser2");
-		if(resp.status == 200){
-			window.user = resp.data;
-			store.state.userId = resp.data.user_id;
-			callback()
-		}
+// /**
+//    * 获取用户
+//    */
+// function getUser(callback) {
+// 	axios.get('/api/user/me', {
+// 		headers: {
+// 			'Content-Type': 'application/json'
+// 		}
+// 	}).then(function(resp) {
+// //		console.log(resp);
+// //		console.log("getUser2");
+// 		if(resp.status == 200){
+// 			window.user = resp.data;
+// 			store.state.userId = resp.data.user_id;
+// 			callback()
+// 		}
 		
 
-	})
-}
+// 	})
+// }
 
-/**
- * 获取护工
- */
-axios.get('/api/work', {
-	headers: {
-		'Content-Type': 'application/json'
-	}
-}).then(function(resp) {
-	//Indicator.close();
-//	console.log(resp);
-//	console.log("getWorker2");
-//	console.log("resp.data.length:"+resp.data.length);
-	if (resp) {
-//		console.log("window.worker");
-	    if (resp.data.length != 0) {
-	    	window.worker = resp.data[0];
-//			console.log(window.worker);
-//			console.log("store.state.workerId:"+resp.data[0].work_id);
-			store.state.workId = resp.data[0].work_id;
-	    }
-	    getUser(function () {
-	      show()
-	    })
-	}
+// /**
+//  * 获取护工
+//  */
+// axios.get('/api/work', {
+// 	headers: {
+// 		'Content-Type': 'application/json'
+// 	}
+// }).then(function(resp) {
+// 	//Indicator.close();
+// //	console.log(resp);
+// //	console.log("getWorker2");
+// //	console.log("resp.data.length:"+resp.data.length);
+// 	if (resp) {
+// //		console.log("window.worker");
+// 	    if (resp.data.length != 0) {
+// 	    	window.worker = resp.data[0];
+// //			console.log(window.worker);
+// //			console.log("store.state.workerId:"+resp.data[0].work_id);
+// 			store.state.workId = resp.data[0].work_id;
+// 	    }
+// 	    getUser(function () {
+// 	      show()
+// 	    })
+// 	}
 
-}).catch(function(error) {
-	Indicator.close();
-	console.log(error);
-	if(error.response){
-		if(error.response.data.status == 404) {
-			router.replace({
-		        name: '护工注册'
-		      })
-			 getUser(function () {
-		      show()
-		    })
-		}
-	}
-});
+// }).catch(function(error) {
+// 	Indicator.close();
+// 	console.log(error);
+// 	if(error.response){
+// 		if(error.response.data.status == 404) {
+// 			router.replace({
+// 		        name: '护工注册'
+// 		      })
+// 			 getUser(function () {
+// 		      show()
+// 		    })
+// 		}
+// 	}
+// });
 
 //微信端发布开启-------end---------
 

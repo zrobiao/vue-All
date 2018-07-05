@@ -43,6 +43,13 @@
     </div>
     <div class="clist">
       <i class="iconfont">&#xe648;</i>
+      <h3>付款方式</h3>
+      <p>
+        <button v-for="(item,index) in payType" class="but" :class="{'but-select':payflag==index}" v-on:click='payClick(item.number,index)'>{{item.title}}</button>
+      </p>
+    </div>
+    <div class="clist">
+      <i class="iconfont">&#xe648;</i>
       <h3>金额</h3>
       <p>
         <button class="but" v-on:click='setMoney()'>设置金额</button>
@@ -117,10 +124,12 @@ export default {
       endDate: '',
       value: '',
       flag: 0,
+      payflag: 0,
       hospitalName: '',
       hospitalId: '',
       price: 0,
       series: '1',
+      payseries:'1',
       QrCodeData: '',
       QrCodeURL: '',
       popupVisible: false,
@@ -137,6 +146,16 @@ export default {
         {
           title: '特殊',
           number: '3'
+        }
+      ],
+      payType: [
+        {
+          title: '线下支付',
+          number: '1'
+        },
+        {
+          title: '线上支付',
+          number: '2'
         }
       ]
     }
@@ -185,6 +204,15 @@ export default {
       //选择高级
       this.flag = index
       this.series = num
+      this.priceInfo()
+      if (index == 2) {
+        document.documentElement.scrollTop = this.BodyHeight
+      }
+    },
+    payClick: function(num, index) {
+      this.payflag = index
+      this.payseries = num
+      console.log("选择"+num)
       this.priceInfo()
       if (index == 2) {
         document.documentElement.scrollTop = this.BodyHeight
@@ -256,13 +284,14 @@ export default {
         this.setMessage('请输入价格')
         return
       }
-      console.log('用户id：' + userId)
-      console.log('医院id：' + hospitalId)
-      console.log('开始时间:' + startDate)
-      console.log('结束时间' + endDate)
-      console.log('陪护等级:' + dependentLevel)
-      console.log('陪护价格:' + price)
-      console.log('护工id：' + workId)
+      // console.log('用户id：' + userId)
+      // console.log('医院id：' + hospitalId)
+      // console.log('开始时间:' + startDate)
+      // console.log('结束时间' + endDate)
+      // console.log('陪护等级:' + dependentLevel)
+      // console.log('陪护价格:' + price)
+      // console.log('护工id：' + workId)
+      console.log("支付类型"+this.payseries)  //1.线下支付2.线上支付
       this.popupVisible = true
       util.Ajax(
         '/api/order/createOrderByWorker?_method=PUT',
@@ -274,7 +303,8 @@ export default {
           dependentLevel: dependentLevel,
           startDate: startDate,
           endDate: endDate,
-          price: price
+          price: price,
+          payType:$this.payseries
         },
         function(data) {
           //显示是否有护工
@@ -600,16 +630,16 @@ export default {
   margin: 40px auto 1rem;
 }
 
-.collect .kk-logo{
+.collect .kk-logo {
   position: absolute;
-  width:30px;
-  height:30px;
-  left:50%;
-  top:40%;
-  margin:-15px 0 0 -15px;
+  width: 30px;
+  height: 30px;
+  left: 50%;
+  top: 40%;
+  margin: -15px 0 0 -15px;
 }
-.collect .kk-logo img{
+.collect .kk-logo img {
   height: 100%;
-  width:100%;
+  width: 100%;
 }
 </style>

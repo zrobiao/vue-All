@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Header></Header>
     <section class="health-top-banner">
       <!-- <img src="../../static/img/index/HeathAbout_banner.jpg"> -->
       <div class="container about-toptt">
@@ -14,7 +15,7 @@
       </div> -->
       <div class="container">
         <ul class="row">
-          <li class="col-lg-4 col-md-4 col-xs-12">
+          <li class="col-lg-4 col-md-4 col-xs-12" v-on:click="go('/website/Detail',1,1)">
             <div class="info-bigbox">
               <div class="info-iconbox">
                 <i class="iconfont" style="color:#eccf88">&#xe602;</i>
@@ -22,7 +23,7 @@
               <h4>体检服务</h4>
             </div>
           </li>
-          <li class="col-lg-4 col-md-4 col-xs-12">
+          <li class="col-lg-4 col-md-4 col-xs-12" v-on:click="go('/website/Detail',1,2)">
             <div class="info-bigbox">
               <div class="info-iconbox">
                 <i class="iconfont" style="color:#85bcff">&#xe69f;</i>
@@ -30,7 +31,7 @@
               <h4>电子档案</h4>
             </div>
           </li>
-          <li class="col-lg-4 col-md-4 col-xs-12">
+          <li class="col-lg-4 col-md-4 col-xs-12" v-on:click="go('/website/Detail',1,3)">
             <div class="info-bigbox">
               <div class="info-iconbox">
                 <i class="iconfont" style="color:#85bcff">&#xe68e;</i>
@@ -38,7 +39,7 @@
               <h4>国内专家</h4>
             </div>
           </li>
-          <li class="col-lg-4 col-md-4 col-xs-12">
+          <li class="col-lg-4 col-md-4 col-xs-12" v-on:click="go('/website/Detail',1,4)">
             <div class="info-bigbox">
               <div class="info-iconbox">
                 <i class="iconfont" style="color:#80d855">&#xe603;</i>
@@ -46,7 +47,7 @@
               <h4>基因测序</h4>
             </div>
           </li>
-          <li class="col-lg-4 col-md-4 col-xs-12">
+          <li class="col-lg-4 col-md-4 col-xs-12" v-on:click="go('/website/Detail',1,5)">
             <div class="info-bigbox">
               <div class="info-iconbox">
                 <i class="iconfont" style="color:#80d855">&#xe621;</i>
@@ -54,7 +55,7 @@
               <h4>国际医疗通道</h4>
             </div>
           </li>
-          <li class="col-lg-4 col-md-4 col-xs-12">
+          <li class="col-lg-4 col-md-4 col-xs-12" v-on:click="go('/website/Detail',1,6)">
             <div class="info-bigbox">
               <div class="info-iconbox">
                 <i class="iconfont" style="color:#f98a8a">&#xe61e;</i>
@@ -69,9 +70,13 @@
 </template>
 
 <script>
+import router from "../router/index.js";
+import Header from "./common/header.vue"
 export default {
   name: "app",
-  components: {},
+  components: {
+    Header
+  },
   created() {
     this.$store.state.flag = 1;
     document.title = '健康资源'
@@ -82,6 +87,11 @@ export default {
     return {
       msg: "这里是健康资讯！"
     };
+  },
+  methods:{
+    go: function(url, flag, data) {
+      router.push({ path: url, query: { flag: flag, index:data} });
+    },
   }
 };
 </script>

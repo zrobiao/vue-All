@@ -69,7 +69,7 @@ export default {
     this.$store.state.isFooterShow = true; //显示底部导航
     this.$store.state.flag = 3;
     document.title = "我的";
-    console.log('用户：'+window.user);
+    console.log("用户：" + window.user);
   },
   components: {
     Cell,
@@ -102,16 +102,17 @@ export default {
       let $this = this;
       util.Ajax("/api/user/" + id + "?_method=GET", {}, function(data) {
         $this.userData = data.data;
+        window.user = $this.userData
         console.log($this.userData);
-        if($this.userData.message === '未找到该用户'){
-          $this.userTrue = false
-        }else{
-          if(!$this.userData.phoneNum){
-            $this.userTrue = false
-            console.log('号码为空！')
-          }else{
-            $this.userTrue = true
-            console.log('号码不为空！且注册。')
+        if ($this.userData.message === "未找到该用户") {
+          $this.userTrue = false;
+        } else {
+          if (!$this.userData.phoneNum) {
+            $this.userTrue = false;
+            console.log("号码为空！");
+          } else {
+            $this.userTrue = true;
+            console.log("号码不为空！且注册。");
           }
           if ($this.userData.avatar) {
             if ($this.userData.avatar.indexOf("https://") === 0) {
@@ -126,18 +127,18 @@ export default {
   },
   mounted: function() {
     var $this = this;
+    console.log($this.$store.state.userId);
     //微信
-//      util.Ajax('/api/user/me?_method=GET',{},function(data){
-//      	$this.$store.state.userId = data.data.user_id;
-//      	console.log("userId:"+$this.$store.state.userId)
-////      $this.getUser($this.$store.state.userId);
-//     console.log("MEEEEEEEEEEEEEEEEE")
-//     console.log(window.user)
-//     console.log("window.user:"+window.user.user_id)
-////           $this.getUser(window.user.user_id);
-//      })
+    // util.Ajax("/api/user/me?_method=GET", {}, function(data) {
+    //   $this.$store.state.userId = data.data.user_id;
+    //   console.log("userId:" + $this.$store.state.userId);
+    //   console.log(window.user);
+    //   console.log("window.user:" + window.user.user_id);
+    //   $this.getUser($this.$store.state.userId);
+    //   //           $this.getUser(window.user.user_id);
+    // });
     //本地
-      $this.getUser($this.$store.state.userId);
+    $this.getUser($this.$store.state.userId);
   }
 };
 </script>

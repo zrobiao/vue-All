@@ -7,7 +7,7 @@
       <!-- <button class="button" v-on:click='go("/supervisor")'><img src="../../assets/dudao.png" alt="">督导管理</button> -->
       <button class="buttontype1" v-on:click='manage("/supervisor/index")'>督导管理</button>
       <button class="buttontype2" :class="{'type2-select':flag==true}" v-on:click='servetype()'>{{servetext}}</button>
-      <button class="buttontype1" v-on:click='set("/worker/totals")'>订单码</button>
+      <button class="buttontype1" v-on:click='toCollect()'>订单码</button>
     </div>
     <div class="title">
       <i class="iconfont">&#xe647;</i>{{OrderTitle}}</div>
@@ -79,6 +79,7 @@ export default {
       //isEnter: false, //判定是否有查看权限s
       flag: false,
       servetext: '开始服务',
+      isSuperFlag: false,
       items: [
         {
           id: '1',
@@ -125,7 +126,11 @@ export default {
       })
     },
     manage: function(url) {
-      util.pushRouter(router, url, {})
+      if (this.isSuperFlag) {
+        util.pushRouter(router, url, {})
+      } else {
+        Toast('您当前还不是督导!')
+      }
     },
     servetype: function() {
       if (this.flag == true) {
@@ -139,7 +144,7 @@ export default {
       }
     },
     setServer: function(_type) {
-      let $this =this   
+      let $this = this
       let workId = $this.$store.state.workId
       util.Ajax(
         'api/work/' + workId + '/service?_method=PATCH',
@@ -156,8 +161,6 @@ export default {
       console.log('接单')
       let $this = this
       let orderWorkId = orderWork_id
-
-
 
       console.log(
         '接受的订单为' + orderWorkId + '护工ID为:' + this.$store.state.workId
@@ -204,6 +207,55 @@ export default {
       MessageBox.alert(_msg).then(action => {
         this.go(_url)
       })
+    },
+    toCollect: function() {
+      let $this = this
+      if (this.validateData.workStatus == 'approved') {
+        //判定是否有新订单
+        if ($this.isOrder == true) {
+          MessageBox.confirm('当前已有新订单，是否查看?').then(action => {
+            util.pushRouter(router, '/worker', {})
+          })
+        } else {
+          //判定是否有未开始的订单
+          util.Ajax(
+            '/api/order/notStartOrderListWork?_method=GET',
+            {
+              workId: $this.$store.state.workId
+            },
+            function(data) {
+              if (data.data.length > 0) {
+                MessageBox.confirm('当前还有未开始订单，是否查看?').then(
+                  action => {
+                    util.pushRouter(router, '/worker/order', {})
+                  }
+                )
+              } else {
+                //判定是否有进行中订单
+                util.Ajax(
+                  '/api/order/processingOrderListWork?_method=GET',
+                  { workId: this.$store.state.workId },
+                  function(data) {
+                    console.log(data.data)
+                    if (data.data.length > 0) {
+                      console.log('您当前有正在进行中的订单，不能接单')
+                      MessageBox.confirm('当前还有进行中订单，是否查看?').then(
+                        action => {
+                          util.pushRouter(router, '/worker/order2', {})
+                        }
+                      )
+                    } else {
+                      util.pushRouter(router, '/worker/collect', {})
+                    }
+                  }
+                )
+              }
+            }
+          )
+        }
+      } else {
+        Toast('您当前还不是护工')
+      }
     }
   },
   mounted: function() {
@@ -257,6 +309,14 @@ export default {
                     }
                   }
                 )
+                util.Ajax(
+                  '/api/work/' + $this.$store.state.workId,
+                  {},
+                  function(data) {
+                    //查看护工是否有督导权限
+                    $this.isSuperFlag = data.data.superFlag
+                  }
+                )
                 //护工认证后才开始判定接单
                 if (!util.isEmpty(workId)) {
                   util.Ajax(
@@ -280,7 +340,12 @@ export default {
                         index++
                       ) {
                         let curData = $this.orderData[index].order
-                        console.log(curData)
+                        console.log(curData.orderType)
+                        if (curData.orderType == 'unline') {
+                          $this.OrderTitle = '您当前还没有订单'
+                          $this.isOrder = false
+                          return
+                        }
                         $this.isSubtituted = curData.isSubtituted
                         $this.dependentLevel =
                           CustInfoServiceTypeStatusDict[curData.dependentLevel]

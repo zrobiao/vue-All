@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <Header></Header>
+  <div id="webApp">
     <router-view v-if="isRouterAlive"/>
     <Footer></Footer>
   </div>
@@ -9,12 +8,10 @@
 <script>
 import "./../css/common.css";
 // import "./../fonts/icon/iconfont.css";
-import Header from "./../index/common/header.vue"; 
 import Footer from "./../index/common/footer.vue";
 export default {
   name: 'App',
   components: {
-    Header,
     Footer
   },
   provide(){
@@ -38,7 +35,7 @@ export default {
 }
 </script>
 <style>
-#app{
+#webApp{
   padding-top:53px;
 }
 </style>

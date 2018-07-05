@@ -1,6 +1,11 @@
 <template>
   <div class="Sharing">
     <v-header></v-header>
+    <div class="clist">
+      <p>
+        <button v-for="(item,index) in sharingType" class="but" :class="{'but-select':sharingflag==index}" v-on:click='sharingClick(item.number,index)'>{{item.title}}</button>
+      </p>
+    </div>
     <div class="box">
       <p class="qrcode"><img :src="QrCodeURL"></p>
       <div class="kk-logo">
@@ -8,8 +13,7 @@
       </div>
       <p class="qrcode-txt">扫码分享</p>
     </div>
-    <button class="btn" v-on:click="sharingFriend()">点击分享</button>
-
+    <!--<button class="btn" v-on:click="sharingFriend()">点击分享</button>-->
   </div>
 
 </template>
@@ -22,7 +26,6 @@ let QRCode = require('qrcode')
 export default {
   data() {
     return {
-     
       items: [
         {
           title: '电话',
@@ -41,6 +44,20 @@ export default {
           info: '1991-01-12'
         }
       ],
+      sharingType: [
+        {
+          title: '分享护工',
+          number: '1'
+        },
+        {
+          title: '分享用户',
+          number: '2'
+        }
+      ],
+      sharingflag: '0',
+      sharingseries: '1',
+      sharingId: '',
+      userId: '',
       QrCodeURL: '',
       QrCodeData: '',
       popupVisible: true
@@ -58,12 +75,24 @@ export default {
   mounted: function() {
     //加载完成后执行
     let $this = this
-    wxapi.wxRegister() //微信分享【】
+    //微信浏览器打开
+    //  if(wxapi.isweixin()){
+    //  	alert("请在微信浏览器打开！")
+    //  	return;
+    //  }
+    //alert(getParam())
+    //接收用户id
+    if (!window.user) {
+      this.userId = this.$route.query.uid
+    } else {
+      this.userId = window.user.user_id
+    }
+    this.sharingId = this.$route.query.sharingId
     //根据点击顺序1.分享护工 2.分享用户
     if (this.$route.query.sharingId == 1) {
       //分享护工
       util.Ajax(
-        '/api/user/' + window.user.user_id + '/worker?_method=GET',
+        '/api/user/' + this.userId + '/worker?_method=GET',
         {},
         function(data) {
           //console.log(data)
@@ -72,6 +101,7 @@ export default {
             if (userData.status == 'success') {
               $this.QrCodeData = userData.result
               $this.createUserQrCode($this.QrCodeData) //生成二维码
+              //wxapi.wxRegister('worker', $this.wxRegCallback) //微信分享【】
             }
           }
         }
@@ -79,7 +109,7 @@ export default {
     } else if (this.$route.query.sharingId == 2) {
       //分享用户
       util.Ajax(
-        '/api/user/' + window.user.user_id + '/customer?_method=GET',
+        '/api/user/' + this.userId + '/customer?_method=GET',
         {},
         function(data) {
           //console.log(data)
@@ -88,6 +118,7 @@ export default {
             if (userData.status == 'success') {
               $this.QrCodeData = userData.result
               $this.createUserQrCode($this.QrCodeData) //生成二维码
+              //wxapi.wxRegister('worker', $this.wxRegCallback) //微信分享【】
             }
           }
         }
@@ -115,29 +146,85 @@ export default {
       this.createUserQrCode(salt)
     },
     wxRegCallback() {
-      alert("huidiao")
-      this.wxShareTimeline()
+      // let linkParam
+      // if (this.sharingId == 1) {
+      //   //护工
+      //   linkParam =
+      //     window.location.href.split('#')[0] +
+      //     '#/worker/sharing?uid=' +
+      //     this.userId +
+      //     '&sharingId=' +
+      //     this.sharingId
+      // } else {
+      //   linkParam =
+      //     window.location.host +
+      //     '/customer.html#/customer/sharing?uid=' +
+      //     this.userId +
+      //     '&sharingId=' +
+      //     this.sharingId
+      // }
+      // let opstion = {
+      //   title: '分享测试', // 分享标题
+      //   link: linkParam, // 分享链接
+      //   desc: '分享链接测试',
+      //   imgUrl: this.QrCodeURL, // 分享图标
+      //   success: function() {
+      //     alert('分享成功')
+      //   },
+      //   error: function() {
+      //     alert('分享失败')
+      //   }
+      // }
+      // wxapi.share(opstion)
     },
-    wxShareTimeline() {
-      alert("wxShareTimeline")
-      let opstion = {
-        title: '分享测试', // 分享标题
-        link: 'http://www.baidu.com', // 分享链接
-        imgUrl:
-          'http://www.jzdlink.com/wordpress/wp-content/themes/wordpress_thems/images/lib/logo.png', // 分享图标
-        success: function() {
-          alert('分享成功')
-        },
-        error: function() {
-          alert('分享失败')
-        }
+    sharingClick(num, index) {
+      this.sharingflag = index
+      this.sharingseries = num
+      this.sharingId = num
+      let $this = this
+      if (index == 2) {
+        document.documentElement.scrollTop = this.BodyHeight
       }
-      wxapi.ShareTimeline(opstion)
-    },
-    sharingFriend(){
-      console.log("分享至朋友圈")//
-      this.wxShareTimeline() //微信分享【】
+      if (this.sharingseries == 1) {
+        console.log('分享护工'+ $this.sharingId)
+        util.Ajax(
+          '/api/user/' + this.userId + '/worker?_method=GET',
+          {},
+          function(data) {
+            //console.log(data)
+            if (data) {
+              let userData = data.data
+              if (userData.status == 'success') {
+                $this.QrCodeData = userData.result
+                $this.createUserQrCode($this.QrCodeData) //生成二维码
+                //wxapi.wxRegister('worker', $this.wxRegCallback) //微信分享【】
+              }
+            }
+          }
+        )
+      } else if (this.sharingseries == 2) {
+        console.log('分享用户'+ $this.sharingId )
+        util.Ajax(
+          '/api/user/' + this.userId + '/customer?_method=GET',
+          {},
+          function(data) {
+            //console.log(data)
+            if (data) {
+              let userData = data.data
+              if (userData.status == 'success') {
+                $this.QrCodeData = userData.result
+                $this.createUserQrCode($this.QrCodeData) //生成二维码
+                //wxapi.wxRegister('worker', $this.wxRegCallback) //微信分享【】
+              }
+            }
+          }
+        )
+      }
     }
+    //  sharingFriend(){
+    //    console.log("分享至朋友圈")//
+    //    this.wxShareTimeline() //微信分享【】
+    //  }
   }
 }
 </script>
@@ -172,6 +259,53 @@ export default {
   right: 0;
   width: 100%;
   padding-top: 4rem;
+}
+
+.Sharing .clist {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  background: #fff;
+}
+
+.Sharing .clist h3 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  padding: 0 1rem;
+  line-height: 26px;
+  flex: 0 1 30%;
+}
+.Sharing .clist .iconfont {
+  font-size: 2rem;
+  line-height: 26px;
+}
+.Sharing .clist p {
+  flex: 0 1 60%;
+  display: flex;
+  align-items: center;
+  font-size: 1.4rem;
+  line-height: 26px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  position: relative;
+}
+.Sharing .but {
+  border-radius: 5px;
+  border: 1px solid #eee;
+  background: #fff;
+  padding: 0.5rem;
+  /* width: 3.5rem; */
+}
+.Sharing .but:not(:last-child) {
+  margin-right: 0.5rem;
+}
+.Sharing .but-select {
+  background: #94ca52;
+  color: #fff;
 }
 
 .Sharing .btn {

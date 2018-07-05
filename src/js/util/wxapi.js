@@ -78,7 +78,7 @@ const wxApi = {
 			},
 			cancel: function() {
 				// 用户取消分享后执行的回调函数
-				obj.error()
+				//obj.error()
 			}
 		});
 		//分享给朋友
@@ -95,7 +95,7 @@ const wxApi = {
 			},
 			cancel: function() {
 				// 用户取消分享后执行的回调函数
-				obj.error()
+				//obj.error()
 			}
 		});
 		//分享到QQ
@@ -110,7 +110,7 @@ const wxApi = {
 			},
 			cancel: function() {
 				// 用户取消分享后执行的回调函数
-				obj.error()
+				//obj.error()
 			}
 		});
 		//分享到腾讯微博
@@ -125,7 +125,7 @@ const wxApi = {
 			},
 			cancel: function() {
 				// 用户取消分享后执行的回调函数
-				obj.error()
+				//obj.error()
 			}
 		});
 		//分享到QQ空间
@@ -140,7 +140,7 @@ const wxApi = {
 			},
 			cancel: function() {
 				// 用户取消分享后执行的回调函数
-				obj.error()
+				//obj.error()
 			}
 		});
 	}

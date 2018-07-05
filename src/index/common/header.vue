@@ -1,8 +1,8 @@
 <template>
   <header class="navbar-fixed-top">
     <navbar class="container hph-navbar">
-      <a class="navbar-brand logo-link" slot="brand" href="/index.html#/website/Index">
-        <img src="../../../static/img/index/logo.png" class="img-responsive">
+      <a class="navbar-brand logo-link" slot="brand" :href="'https://' +hrefAddr">
+        <img src="../../../static/img/index/logo.jpg" class="img-responsive">
       </a>
       <template slot="collapse">
         <navbar-nav right>
@@ -25,6 +25,7 @@ export default {
       {title:'关于我们',tablink:'/website/aboutUs'},
       ],
       flag:this.$store.state.flag,
+      hrefAddr: window.location.host
     }
   },
   created () {
@@ -36,7 +37,8 @@ export default {
       this.currentName=title
     },
   },
-  components: {},
+  components: {
+  },
 }
 </script>
 <style scoped>
@@ -71,5 +73,12 @@ header{
 .df-active>a{
 	background-color: #fff!important;
   color:#34b8de!important;
+}
+/* 修改原有样式 */
+.navbar-default .navbar-toggle:hover{
+  background-color:#fff!important;
+}
+.navbar-default .navbar-toggle{
+  background-color:none!important;
 }
 </style>
