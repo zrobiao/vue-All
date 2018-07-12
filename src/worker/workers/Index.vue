@@ -7,7 +7,7 @@
       <!-- <button class="button" v-on:click='go("/supervisor")'><img src="../../assets/dudao.png" alt="">督导管理</button> -->
       <button class="buttontype1" v-on:click='manage("/supervisor/index")'>督导管理</button>
       <button class="buttontype2" :class="{'type2-select':flag==true}" v-on:click='servetype()'>{{servetext}}</button>
-      <button class="buttontype1" v-on:click='toCollect()'>订单码</button>
+      <button class="buttontype1" v-on:click='toCollect()'>创建订单</button>
     </div>
     <div class="title">
       <i class="iconfont">&#xe647;</i>{{OrderTitle}}</div>
@@ -45,10 +45,6 @@
         </li>
       </ul>
     </div>
-
-    <!--老款接单设置-->
-    <!-- <div v-if="isStart" class="work-start" v-on:click="startClick"><span>开始<br>接单</span></div>
-	   <div v-if="isFinish" class="work-start finish"><span>接单<br>结束</span></div> -->
   </div>
 </template>
 
@@ -93,14 +89,6 @@ export default {
           orderWorkId: '',
           isSubtituted: ''
         }
-
-        //				, {
-        //					"hospital": "bbb",
-        //					"id": "2"
-        //				}, {
-        //					"hospital": "ccc",
-        //					"id": "3"
-        //				}
       ]
     }
   },
@@ -209,53 +197,32 @@ export default {
       })
     },
     toCollect: function() {
+      this.isCreat()
+    },
+    isCreat: function() {
       let $this = this
-      if (this.validateData.workStatus == 'approved') {
-        //判定是否有新订单
-        if ($this.isOrder == true) {
-          MessageBox.confirm('当前已有新订单，是否查看?').then(action => {
-            util.pushRouter(router, '/worker', {})
-          })
-        } else {
-          //判定是否有未开始的订单
-          util.Ajax(
-            '/api/order/notStartOrderListWork?_method=GET',
-            {
-              workId: $this.$store.state.workId
-            },
-            function(data) {
-              if (data.data.length > 0) {
-                MessageBox.confirm('当前还有未开始订单，是否查看?').then(
-                  action => {
-                    util.pushRouter(router, '/worker/order', {})
-                  }
-                )
-              } else {
-                //判定是否有进行中订单
-                util.Ajax(
-                  '/api/order/processingOrderListWork?_method=GET',
-                  { workId: this.$store.state.workId },
-                  function(data) {
-                    console.log(data.data)
-                    if (data.data.length > 0) {
-                      console.log('您当前有正在进行中的订单，不能接单')
-                      MessageBox.confirm('当前还有进行中订单，是否查看?').then(
-                        action => {
-                          util.pushRouter(router, '/worker/order2', {})
-                        }
-                      )
-                    } else {
-                      util.pushRouter(router, '/worker/collect', {})
-                    }
-                  }
-                )
-              }
-            }
-          )
+      util.Ajax(
+        'api/order/isCreateOrder?_method=GET',
+        {
+          workId: $this.$store.state.workId
+        },
+        function(data) {
+          console.log('获取接单信息')
+          let isCreatMsg = data.data
+          console.log(isCreatMsg.data)
+          if (!isCreatMsg.status) {
+            console.log('1.我要查询号的订单号为' + isCreatMsg.data)
+            let orderid = isCreatMsg.data
+            MessageBox.confirm(isCreatMsg.message).then(action => {
+              util.pushRouter(router, '/supervisor/details', {
+                orderid: orderid
+              })
+            })
+          } else {
+            util.pushRouter(router, '/worker/collect', {})
+          }
         }
-      } else {
-        Toast('您当前还不是护工')
-      }
+      )
     }
   },
   mounted: function() {
@@ -437,7 +404,7 @@ export default {
   height: 2.5rem;
   line-height: 2.5rem;
   color: #fff;
-  background: #94ca52;
+  background: rgb(2, 197, 91);
   margin-bottom: 0;
   padding-left: 3.5rem;
 }

@@ -97,65 +97,32 @@ export default {
       })
     },
     toCollect: function() {
+      this.isCreat()
+    },
+    isCreat: function() {
       let $this = this
-      if (this.validateData.workStatus == 'approved') {
-        //判定是否有新订单
-        util.Ajax(
-          '/api/orderwork/?_method=GET',
-          {
-            workId: $this.$store.state.workId
-          },
-          function(data) {
-            if (util.isEmpty(data.data[0])) {
-              //Toast('您当前还没有订单')
-              //判定是否有未开始订单
-              util.Ajax(
-                '/api/order/notStartOrderListWork?_method=GET',
-                {
-                  workId: $this.$store.state.workId
-                },
-                function(data) {
-                  if (data.data.length > 0) {
-                    MessageBox.confirm('当前还有未开始订单，是否查看?').then(
-                      action => {
-                        util.pushRouter(router, '/worker/order', {})
-                      }
-                    )
-                  } else {
-                    //判定是否有进行中订单
-                    util.Ajax(
-                      '/api/order/processingOrderListWork?_method=GET',
-                      { workId: $this.$store.state.workId },
-                      function(data) {
-                        console.log(
-                          '查看进行中订单' + $this.$store.state.workId
-                        )
-                        console.log(data.data)
-                        if (data.data.length > 0) {
-                          console.log('您当前有正在进行中的订单，不能接单')
-                          MessageBox.confirm(
-                            '当前还有进行中订单，是否查看?'
-                          ).then(action => {
-                            util.pushRouter(router, '/worker/order2', {})
-                          })
-                        } else {
-                          util.pushRouter(router, '/worker/collect', {})
-                        }
-                      }
-                    )
-                  }
-                }
-              )
-            } else {
-              MessageBox.confirm('当前已有新订单，是否查看?').then(action => {
-                util.pushRouter(router, '/worker', {})
+      util.Ajax(
+        'api/order/isCreateOrder?_method=GET',
+        {
+          workId: $this.$store.state.workId
+        },
+        function(data) {
+          console.log('获取接单信息')
+          let isCreatMsg = data.data
+          console.log(isCreatMsg.data)
+          if (!isCreatMsg.status) {
+            console.log('1.我要查询号的订单号为' + isCreatMsg.data)
+            let orderid = isCreatMsg.data
+            MessageBox.confirm(isCreatMsg.message).then(action => {
+              util.pushRouter(router, '/supervisor/details', {
+                orderid: orderid
               })
-            }
+            })
+          }else {
+            util.pushRouter(router, '/worker/collect', {})
           }
-        )
-      } else {
-        Toast('您当前还不是护工')
-      }
+        }
+      )
     },
     toSharing: function(sharingId) {
       util.pushRouter(router, '/worker/sharing', {
@@ -175,6 +142,90 @@ export default {
       MessageBox.alert(_msg).then(action => {
         this.go(_url)
       })
+    },
+
+    checkWorker: function() {
+      let $this = this
+      util.Ajax('/api/work/' + $this.$store.state.workId, {}, function(data) {
+        console.log('查看护工信息')
+        console.log(data.data)
+        $this.userData = data.data
+        $this.isStar = $this.userData.star
+        if ($this.userData.avatar) {
+          if ($this.userData.avatar.indexOf('https://') === 0) {
+            $this.avatar = $this.userData.avatar
+          } else {
+            $this.avatar = $this.$store.state.imgUrl + $this.userData.avatar
+          }
+        }
+      })
+    },
+
+    fruitWorker: function() {
+      let $this = this
+      util.Ajax(
+        '/api/work/isAuthWork/' + $this.$store.state.userId,
+        {},
+        function(data) {
+          console.log(data.data)
+          $this.validateData = data.data
+          if ($this.validateData.workStatus == 'approved') {
+            $this.flagAttest = false
+            $this.fruit = '已认证'
+          } else if ($this.validateData.workStatus == 'disapproved') {
+            console.log('护工认证失败')
+            //checking状态或者其他
+            $this.flagAttest = true
+            $this.fruit = '未通过'
+            //$this.msgBox('个人信息认证失败，请重新认证', '/worker/attestation')
+          } else if ($this.validateData.workStatus == 'checking') {
+            $this.fruit = '认证中'
+            //$this.msgBox('个人信息认证中，请等待', '/worker/Me')
+          } else if ($this.validateData.workStatus == 'unchecked') {
+            //checking状态或者其他
+            $this.flagAttest = true
+            $this.fruit = '未认证'
+            //$this.msgBox('请进行个人信息认证', '/worker/attestation')
+          }
+        }
+      )
+    },
+
+    userMsg: function() {
+      let $this = this
+      util.Ajax(
+        '/api/work/isBasicInfoWork/' + this.$store.state.userId,
+        {},
+        function(data) {
+          console.log('查看用户信息是否完善')
+          console.log(data.data)
+          $this.infoData = data.data
+          if ($this.infoData.workStatus == 0) {
+            $this.infoOver = true
+            $this.flagAttest = false
+            $this.curType = '护工信息(未完善)'
+            $this.msgBox('请完善你的个人信息', '/worker/seniorInfo')
+            return
+          }
+          if ($this.infoData.basicInfo_desc == '护工信息已完善') {
+            $this.infoOver = true
+            $this.curType = '护工信息(已完善)'
+            $this.$store.state.workId = data.data.work_Id
+            if (!util.isEmpty(data.data.work_Id)) {
+              util.setCookie('workId', data.data.work_Id)
+            } else {
+              $this.$store.state.workId = util.getCookie('workId')
+            }
+            $this.checkWorker()
+            $this.fruitWorker()
+          } else if ($this.infoData.basicInfo_desc == '护工信息未完善') {
+            $this.curType = '护工信息(未完善)'
+            $this.infoOver = true
+            $this.flagAttest = false
+            $this.msgBox('请完善你的个人信息', '/worker/seniorInfo')
+          }
+        }
+      )
     }
   },
   mounted: function() {
@@ -190,13 +241,19 @@ export default {
         } else {
           $this.avatar = $this.$store.state.imgUrl + $this.userData.avatar
         }
-      }
+        $this.userMsg()
+      } 
+      else {
+        util.getUser()
+      }  
     }
 
     util.Ajax('/api/agreement/queryAboutUS?_method=GET', {}, function(data) {
       //console.log(data)
       $this.msg = data.data.data.content
     })
+     //$this.userMsg() //本地
+    //_______________________
     //  util.Ajax('/api/user/me?_method=GET', {}, function(data) {
     //    console.log(data)
     //    if(data){
@@ -229,79 +286,6 @@ export default {
     //     }
     //   }
     // }) //2018年1月23日19:32:35
-
-    util.Ajax(
-      '/api/work/isBasicInfoWork/' + this.$store.state.userId,
-      {},
-      function(data) {
-        console.log('查看用户信息是否完善')
-        console.log(data.data)
-        $this.infoData = data.data
-        if ($this.infoData.workStatus == 0) {
-          $this.infoOver = true
-          $this.flagAttest = false
-          $this.curType = '护工信息(未完善)'
-          $this.msgBox('请完善你的个人信息', '/worker/seniorInfo')
-          return
-        }
-        if ($this.infoData.basicInfo_desc == '护工信息已完善') {
-          $this.infoOver = true
-          $this.curType = '护工信息(已完善)'
-          $this.$store.state.workId = data.data.work_Id
-          if (!util.isEmpty(data.data.work_Id)) {
-            util.setCookie('workId', data.data.work_Id)
-          } else {
-            $this.$store.state.workId = util.getCookie('workId')
-          }
-          util.Ajax('/api/work/' + $this.$store.state.workId, {}, function(
-            data
-          ) {
-            console.log('查看护工信息')
-            console.log(data.data)
-            $this.userData = data.data
-            $this.isStar = $this.userData.star
-            if ($this.userData.avatar) {
-              if ($this.userData.avatar.indexOf('https://') === 0) {
-                $this.avatar = $this.userData.avatar
-              } else {
-                $this.avatar = $this.$store.state.imgUrl + $this.userData.avatar
-              }
-            }
-          })
-          util.Ajax(
-            '/api/work/isAuthWork/' + $this.$store.state.userId,
-            {},
-            function(data) {
-              console.log(data.data)
-              $this.validateData = data.data
-              if ($this.validateData.workStatus == 'approved') {
-                $this.flagAttest = false
-                $this.fruit = '已认证'
-              } else if ($this.validateData.workStatus == 'disapproved') {
-                console.log('护工认证失败')
-                //checking状态或者其他
-                $this.flagAttest = true
-                $this.fruit = '未通过'
-                //$this.msgBox('个人信息认证失败，请重新认证', '/worker/attestation')
-              } else if ($this.validateData.workStatus == 'checking') {
-                $this.fruit = '认证中'
-                //$this.msgBox('个人信息认证中，请等待', '/worker/Me')
-              } else if ($this.validateData.workStatus == 'unchecked') {
-                //checking状态或者其他
-                $this.flagAttest = true
-                $this.fruit = '未认证'
-                //$this.msgBox('请进行个人信息认证', '/worker/attestation')
-              }
-            }
-          )
-        } else if ($this.infoData.basicInfo_desc == '护工信息未完善') {
-          $this.curType = '护工信息(未完善)'
-          $this.infoOver = true
-          $this.flagAttest = false
-          $this.msgBox('请完善你的个人信息', '/worker/seniorInfo')
-        }
-      }
-    )
   }
 }
 </script>

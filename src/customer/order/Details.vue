@@ -599,7 +599,7 @@ export default {
             console.log($this.items);
             var orderInfo = $this.items[0];
             var orderCreatedAt = orderInfo.createdAt; //获取当前订单的创建时间
-            $this.TimeOverShow(orderCreatedAt);
+            $this.TimeOverShow(orderCreatedAt,orderInfo.orderType);
             if (orderInfo.work && orderInfo.work.avatar) {
               if (orderInfo.work.avatar.indexOf("https://") === 0) {
                 orderInfo.work.avatar = orderInfo.work.avatar;
@@ -625,7 +625,6 @@ export default {
             }
             //订单是否开始倒计时
             if (orderInfo.orderType === 'online') {
-              console.log("现在是线上下单，开始倒计时");
               $this.interval = setInterval(() => {
                 if ($this.differMs > 0 && $this.playclick == true) {
                   // this.TimeOverShow(orderCreatedAt);
@@ -732,13 +731,11 @@ export default {
       switch (Type) {
         case CustomerOrderState.Unpaid: //未付款
           if (orderType === "online") {
-            console.log("现在是线上下单");
             this.isLine = true;
           } else {
-            console.log("现在是线下下单");
             this.isLine = false;
           }
-            this.isShow = true;
+          this.isShow = true;
           this.isCancel = true;
           if (
             custInfoStatus &&
@@ -816,7 +813,7 @@ export default {
           break;
       }
     },
-    TimeOverShow: function(orderTime) {
+    TimeOverShow: function(orderTime,orderType) {
       let $this = this;
       var orderTimeDate = new Date(Date.parse(orderTime.replace(/-/g, "/")));
       var nowDateTime = new Date();
@@ -829,7 +826,13 @@ export default {
       if (differMs < 0) {
         minutes = 0;
         seconds = 0;
-        $this.overTime = true;
+        if (orderType=='online') {
+          $this.overTime = true;
+        }else{
+          console.log('现在没有时间限制');
+          $this.overTime = false;
+          $this.isOrderAgain = false;
+        }
       }
       $this.minutes = minutes;
       $this.seconds = seconds;

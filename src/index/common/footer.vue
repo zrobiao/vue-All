@@ -30,7 +30,7 @@
     </div>
     <div class="footer-bottom">
       <div class="container">
-        <p>Copyright&nbsp;@&nbsp;2016-2018&nbsp;<a :href="'https://'+webAddr">{{webAddr}}</a>.All&nbsp;Rights&nbsp;Reserved&nbsp;&nbsp;&nbsp;粤ICP备16046624号-1</p>
+        <p>Copyright&nbsp;@&nbsp;2016-2018&nbsp;<a :href="'https://'+webAddr">{{webAddr}}</a>.All&nbsp;Rights&nbsp;Reserved&nbsp;&nbsp;&nbsp;<a href="http://www.miitbeian.gov.cn" target="_blank" style="color:#fff;">粤ICP备16046624号-1</a></p>
       </div>
     </div>
   </footer>

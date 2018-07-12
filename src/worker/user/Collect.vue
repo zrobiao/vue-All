@@ -63,11 +63,12 @@
     <mt-popup class="rmodel" v-model="popupVisible" position="right" popup-transition="popup-fade">
       <div class="box">
         <p class="qrcode">
-          <img :src="QrCodeURL">
+          <!-- <img :src="QrCodeURL"> -->
+          <vue-qr :logoSrc="logoPath" :autoColor="true" :text="QrCodeData" :margin="margin" :size="size" :logoScale="logoScale"></vue-qr>
         </p>
-        <div class="kk-logo">
+        <!-- <div class="kk-logo">
           <img src="../../assets/kk-logo.png" />
-        </div>
+        </div> -->
         <p class="text">扫码提取订单</p>
       </div>
       <button class="button infoButton" v-on:click="closeClick">点击关闭</button>
@@ -78,6 +79,7 @@
 import vHeader from './../common/Header.vue'
 import util from './../../js/util/util.js'
 import router from './../../router'
+import VueQr from 'vue-qr'
 let QRCode = require('qrcode')
 import {
   Cell,
@@ -131,6 +133,10 @@ export default {
       series: '1',
       payseries:'1',
       QrCodeData: '',
+      logoPath: require('../../assets/kk-logo.png'),
+      margin:0,
+      size:240,
+      logoScale:0.15,
       QrCodeURL: '',
       popupVisible: false,
       currentValue: false,
@@ -168,7 +174,8 @@ export default {
   components: {
     vHeader,
     CellSwipe,
-    Cell
+    Cell,
+    VueQr
   },
   methods: {
     createUserQrCode: function(salt) {

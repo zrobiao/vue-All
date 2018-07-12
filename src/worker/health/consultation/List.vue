@@ -2,7 +2,7 @@
   <div class="healthConsultationList">
     <v-header></v-header>
     <!-- <mt-search v-model="value" cancel-text="取消" placeholder="搜索你想要的"></mt-search> -->
-    <template v-for="item in msgList">
+    <template v-for="item in msgList" v-if="msgList.length != 0">
       <div class="list" v-on:click='go("/worker/healthconsultationDetails",item.systemID)'>
         <div class="left"><img :src="item.coverImg"></div>
         <div class="mian">
@@ -12,6 +12,10 @@
         <div class="read">阅读：{{item.pageviews}}</div>
       </div>
     </template>
+    <div class="no-data" v-if="msgList.length == 0">
+      <i class="iconfont">&#xe649;</i>
+      {{noData}}
+    </div>
   </div>
 </template>
 <script>
@@ -24,6 +28,7 @@ export default {
     return {
       value: '',
       msgList: [],
+      noData:'当前没有资讯信息！'
     }
   },
   created() {

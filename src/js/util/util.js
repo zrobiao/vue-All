@@ -316,6 +316,7 @@ export default {
 		}).then(function(resp) {
 			if(resp) {
 				window.user = resp.data;
+				window.location.reload();
 			}
 		})
 	},

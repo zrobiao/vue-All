@@ -1,29 +1,30 @@
 <template>
-	<div class="orderList">
-		<v-header></v-header>
-		<div class="list" v-for="(item,index) in orderList" v-on:click='go("/supervisor/details",item.order_id)'>
-			<div class="title">订单编码:{{item.tradeNum}}</div>
-			<div class="list-li">
-				<h3>服务医院:
-					<label>{{item.hospital.name}}</label>
-				</h3>
-				<h3>服务时间:
-					<label>{{item.startDate.substring(0,10)}}至{{item.endDate.substring(0,10)}}||共{{item.estimatedTime.substring(0,3)}}</label>
-				</h3>
-				<h3>客户信息:
-					<label v-if="item.customer">{{item.customer.username.substring(0,4)}}-{{item.customer.gender}}-暂无电话</label>
-					<label v-if="!item.customer">暂无客户信息</label>
-				</h3>
-				<h3>付款状态:
-					<label>{{item.status=="unpaid"?"未付款":item.status=="cancelled"?"未付款":"已付款"}}</label>
-				</h3>
-				<h3>护工信息:
-					<label>{{item.work.name.substring(0,4)}}-{{item.work.gender_desc}}-{{item.work.phoneNum}}</label>
-				</h3>
-			</div>
-		</div>
+  <div class="orderList">
+    <v-header></v-header>
+    <div class="list" v-for="(item,index) in orderList" v-on:click='go("/supervisor/details",item.order_id)'>
+      <div class="title">订单编码:{{item.tradeNum}}</div>
+      <div class="list-li">
+        <h3>服务医院:
+          <label v-if="item.hospital.name!=null">{{item.hospital.name}}</label>
+        </h3>
+        <h3>服务时间:
+          <label v-if="item.startDate!=null">{{item.startDate.substring(0,10)}}至{{item.endDate.substring(0,10)}}||共{{item.estimatedTime.substring(0,3)}}</label>
+        </h3>
+        <h3>客户信息:
+          <label v-if="item.customer!=null">{{item.customer.name}}-{{item.customer.gender}}-暂无电话</label>
+          <label v-if="!item.customer">暂无客户信息</label>
+        </h3>
+        <h3>付款状态:
+          <label>{{item.status=="unpaid"?"未付款":item.status=="cancelled"?"未付款":"已付款"}}</label>
+        </h3>
+        <h3>护工信息:
+          <label v-if="item.work!=null">{{item.work.name}}-{{item.work.gender_desc}}-{{item.work.phoneNum}}</label>
+          <label v-if="!item.work">暂无护工信息</label>
+        </h3>
+      </div>
+    </div>
 
-	</div>
+  </div>
 </template>
 <script>
 import vHeader from './../common/Header.vue'
@@ -46,11 +47,29 @@ export default {
     Cell
   },
   methods: {
-    go: function(url,orderid) {
-      console.log("查询的订单编号为:"+orderid)
+    go: function(url, orderid) {
+      console.log('查询的订单编号为:' + orderid)
       util.pushRouter(router, url, {
-        orderid:orderid
+        orderid: orderid
       })
+    },
+    getSex: function(_length) {
+      let $this = this
+      for (let index = 0; index < _length; index++) {
+        {
+          if ($this.orderList[index].customer.gender) {
+            if ($this.orderList[index].customer.gender == 'male') {
+              $this.orderList[index].customer.gender = '男'
+            } else if ($this.orderList[index].customer.gender == 'female') {
+              $this.orderList[index].customer.gender = '女'
+            } else {
+              $this.orderList[index].customer.gender = '男'
+            }
+          } else {
+            $this.orderList[index].customer.gender = '男'
+          }
+        }
+      }
     }
   },
   mounted: function() {
@@ -69,17 +88,7 @@ export default {
         console.log(data.data.data)
         $this.orderList = data.data.data
         console.log('订单数量:' + $this.orderList.length)
-        // for (let index = 0; index < $this.orderList.length; index++) {
-        //   {
-        //     if ($this.orderList[index].customer.gender == 'male') {
-        //       $this.orderList[index].customer.gender = '男'
-        //     } else if ($this.orderList[index].customer.gender == 'female') {
-        //       $this.orderList[index].customer.gender = '女'
-        //     } else {
-        //       $this.orderList[index].customer.gender = '男'
-        //     }
-        //   }
-        // }
+        $this.getSex($this.orderList.length)
       }
     )
   }

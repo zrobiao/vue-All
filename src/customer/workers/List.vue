@@ -8,7 +8,8 @@
     <loadmore :top-method="loadTop" @translate-change="translateChange" @top-status-change="handleTopChange" :bottom-method="loadBottom" :auto-fill="false" :bottom-all-loaded="allLoaded" ref="loadmore">
       <div v-for="(item,index) in items" class="workerslist" v-on:click='popupClik(item.work_id)'>
         <div class="left">
-          <img :src="item.avatar" />
+          <!-- <img :src="item.avatar" /> -->
+          <img v-lazy="item.avatar" :key="item.avatar" src=""/>
         </div>
         <div class="mian">
           <h3>{{item.name}}</h3>
@@ -411,6 +412,8 @@ export default {
 }
 .workersDetails .workerslist .left img {
   border-radius: 5px;
+  height: 100%;
+  width:100%;
 }
 .workersDetails .workerslist .mian {
   padding: 0 0 0 1rem;

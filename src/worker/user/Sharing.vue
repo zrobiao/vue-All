@@ -7,10 +7,13 @@
       </p>
     </div>
     <div class="box">
-      <p class="qrcode"><img :src="QrCodeURL"></p>
-      <div class="kk-logo">
+      <p class="qrcode">
+        <!-- <img :src="QrCodeURL"> -->
+        <vue-qr :logoSrc="logoPath" :autoColor="true" :text="QrCodeData" :margin="margin" :size="size" :logoScale="logoScale"></vue-qr>
+      </p>
+      <!-- <div class="kk-logo">
         <img src="../../assets/kk-logo.png" />
-      </div>
+      </div> -->
       <p class="qrcode-txt">扫码分享</p>
     </div>
     <!--<button class="btn" v-on:click="sharingFriend()">点击分享</button>-->
@@ -22,6 +25,7 @@ import vHeader from './../common/Header.vue'
 import { Cell } from 'mint-ui'
 import util from './../../js/util/util.js'
 import wxapi from './../../js/util/wxapi.js'
+import VueQr from 'vue-qr'
 let QRCode = require('qrcode')
 export default {
   data() {
@@ -60,7 +64,11 @@ export default {
       userId: '',
       QrCodeURL: '',
       QrCodeData: '',
-      popupVisible: true
+      popupVisible: true,
+      logoPath: require('../../assets/kk-logo.png'),
+      margin:0,
+      size:240,
+      logoScale:0.15
     }
   },
   created() {
@@ -70,7 +78,8 @@ export default {
   },
   components: {
     vHeader,
-    Cell
+    Cell,
+    VueQr
   },
   mounted: function() {
     //加载完成后执行

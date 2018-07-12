@@ -24,15 +24,15 @@ Vue.use(clipper);
 
 //var isTest = true;
 // //微信端发布开启-------start----------------
-// let vue;
-// //设置图片路径
-// //if(isTest){
-// //	imgUrlValue = 'https://test.kkpeihu.cn/images/uploadsWorkAvatar/';
-// //}else{
-// //	imgUrlValue = 'https://sjht.kkpeihu.cn/images/uploadsWorkAvatar/';
-// //}
-// //加载等待
-// Indicator.open({text: '加载中...',spinnerType: 'fading-circle'});
+let vue;
+//设置图片路径
+//if(isTest){
+//	imgUrlValue = 'https://test.kkpeihu.cn/images/uploadsWorkAvatar/';
+//}else{
+//	imgUrlValue = 'https://sjht.kkpeihu.cn/images/uploadsWorkAvatar/';
+//}
+//加载等待
+//Indicator.open({text: '加载中...',spinnerType: 'fading-circle'});
 
 //微信端发布开启-------end--------------
 // 如果在模块化构建系统中，请确保在开头调用了 Vue.use(Vuex)
@@ -71,7 +71,7 @@ components: { App }
 
 //微信端发布开启------start---------
 // function show() {
-// 	Indicator.close();
+// 	//Indicator.close();
 // 	vue = new Vue({
 // 		el: '#app', // 挂载点，挂载在id为app的组件上  
 // 		template: '<App/>',
@@ -148,8 +148,9 @@ components: { App }
 // 	    })
 // 	}
 
+
 // }).catch(function(error) {
-// 	Indicator.close();
+// 	//Indicator.close();
 // 	console.log(error);
 // 	if(error.response){
 // 		if(error.response.data.status == 404) {
