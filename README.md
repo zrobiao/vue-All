@@ -60,7 +60,7 @@
  
 ## 安装步骤 
 
-	1. git clone https://gitee.com/panfu/vue-manage-element.git  //把模板下载到本地
+	1. git clone https://github.com/zrobiao/vue-All.git  //把模板下载到本地
 	2. cd manage-system    // 进入模板目录
 	3. npm install --registry=https://registry.npm.taobao.org (npm install -g cnpm --registry=https://registry.npm.taobao.org) 
 	4. npm install   // 安装项目依赖，等待安装完成之后; 
